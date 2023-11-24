@@ -13,38 +13,39 @@ from sklearn.metrics import r2_score
 
 print('Start running the program...')
 # 1. Prepare the vocabulary
-dataset_name = 'SAMPLE_SMILE3.csv'
+dataset_name = 'sample_data.csv'
 df_smiles = pd.read_csv(dataset_name)
 df_smiles = df_smiles.dropna(how='any')
 SMILES = df_smiles['SMILES'].tolist()
 
-# # Build up the vocabulary of tokens
-# vocab_output = codecs.open('SPE_token_vocab.txt', 'w')  # Create a directory for the output files
-# learn_SPE(SMILES, vocab_output, 30000, min_frequency=200,
-#           augmentation=1, verbose=True, total_symbols=True)  # learn_SPE is a function in learner.py in SmilesPE
-# vocab_output.close()
-# print('Build up the vocabulary successfully!')
-#
-#
-#
-# # 2. Build up SPE tokenizer(Train the model with skip-gram algorithm)
-# # Load the vocabulary
+# Build up the vocabulary of tokens
+vocab_output = codecs.open('SPE_token_vocab.txt', 'w')  # Create a directory for the output files
+learn_SPE(SMILES, vocab_output, 30000, min_frequency=200,
+          augmentation=1, verbose=True, total_symbols=True)  # learn_SPE is a function in learner.py in SmilesPE
+vocab_output.close()
+print('Build up the vocabulary successfully!')
+
+
+
+# 2. Build up SPE tokenizer(Train the model with skip-gram algorithm)
+# Load the vocabulary
 spe_vocab = codecs.open('SPE_token_vocab.txt')
 # # Build a tokenizer model with the vocabulary
 spe = SPE_Tokenizer(spe_vocab)  # SPE_Tokenizer is a class in tokenizer.py in SmilesPE
-#
-# # Train the SPE2VEC model
-# current_directory = os.getcwd()  # indir is the file path of the SMIlES csv
-# file_name = dataset_name
-# corpus = Corpus(file_name, tokenizer=spe, isdir=True, dropout=0.2)
-# model = learn_spe2vec(corpus=corpus, outfile=None, vector_size=200,
-#                       min_count=10, n_jobs=4,
-#                       method='skip-gram')  # learn_spe2vec is a function in spe2vec.py in SmilesPE
-# print('Build up spe2vec model successfully!')
+
+# Train the SPE2VEC model
+current_directory = os.getcwd()  # indir is the file path of the SMIlES csv
+file_name = dataset_name
+corpus = Corpus(file_name, tokenizer=spe, isdir=True, dropout=0.2)
+model = learn_spe2vec(corpus=corpus, outfile=None, vector_size=200,
+                      min_count=10, n_jobs=4,
+                      method='skip-gram')  # learn_spe2vec is a function in spe2vec.py in SmilesPE
+print('Build up spe2vec model successfully!')
+
 
 # Save the trained model
 model_path = 'spe_model.bin'
-# model.save(model_path)
+model.save(model_path)
 spe2vec = SPE2Vec(model_path, spe)  # create SPE2Vec object
 
 
