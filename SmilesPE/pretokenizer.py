@@ -1,8 +1,10 @@
 __all__ = ['atomwise_tokenizer', 'kmer_tokenizer', 'tokens_to_mer']
 
 
+
 def atomwise_tokenizer(smi, exclusive_tokens = None):
     """
+    test command:
     Tokenize a SMILES molecule at atom-level:
         (1) 'Br' and 'Cl' are two-character tokens
         (2) Symbols with bracket are considered as tokens
