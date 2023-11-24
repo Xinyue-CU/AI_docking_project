@@ -12,6 +12,7 @@ from model.data_preprocessing import padding, get_data
 from sklearn.metrics import r2_score
 
 print('Start running the program...')
+print('step 1: Prepare the vocabulary')
 # 1. Prepare the vocabulary
 dataset_name = 'SAMPLE_SMILE3.csv'
 df_smiles = pd.read_csv(dataset_name)
