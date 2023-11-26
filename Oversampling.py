@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-data = {'docking score': np.random.uniform(1, 10, 1000)}  # 生成1000个随机的连续值
+data = pd.read_csv('sample_data.csv')
 df = pd.DataFrame(data)
 
 
@@ -14,7 +14,11 @@ target_scores = [-11, -10, -9, -2, -1]
 resampled_data = pd.DataFrame()
 for score in target_scores:
     subset = df[df['docking score'].between(score - 0.5, score + 0.5)]
-    resampled_subset = subset.sample(n=1000, replace=True)  # your_resample_size是重采样的大小
+    resampled_subset = subset.sample(n=2000, replace=True)  # your_resample_size是重采样的大小
     resampled_data = pd.concat([resampled_data, resampled_subset])
 
+print(resampled_data)
+df_all = pd.concat([resampled_data, df], axis=0)
+print(df_all.info())
+df_all.to_csv('resampled_data.csv', index=False)
 
