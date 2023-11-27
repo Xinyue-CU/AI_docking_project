@@ -7,7 +7,7 @@ import os
 from SmilesPE.learner import *
 from SmilesPE.tokenizer import *
 from SmilesPE.spe2vec import *
-from model.LSTM_model import LSTM
+from model.EncoderDecoder import EncoderDecoder
 from model.data_preprocessing import padding, get_data
 from sklearn.metrics import r2_score
 
@@ -73,19 +73,13 @@ print('Get the data successfully!')
 
 # 5. Build up the model
 input_size = 200
-hidden_size1 = 128
-hidden_size2 = 64
-hidden_size3 = 16
-num_layers = 2  # Number of LSTM layers
-num_classes = 1  # Number of output classes
-learning_rate = 0.01
-num_epochs = 100  # Number of training epochs
-seq_length = max_seq_length  # Length of the input sequence
-dropout_prob = 0.2  # Dropout rate
+hidden_size = 64
+output_size = 1
+num_epochs = 10
 
-model = LSTM(num_classes, input_size, hidden_size1, hidden_size2, hidden_size3, num_layers, seq_length, dropout_prob)
+model = EncoderDecoder(input_size, hidden_size, output_size)
 criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
 # set early stopping condition
