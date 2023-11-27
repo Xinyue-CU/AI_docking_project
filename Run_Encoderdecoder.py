@@ -11,6 +11,7 @@ from model.EncoderDecoder import EncoderDecoder
 from model.data_preprocessing import padding, get_data
 from sklearn.metrics import r2_score
 
+
 print('Start running the program...')
 # 1. Prepare the vocabulary
 dataset_name = 'resampled_data.csv'

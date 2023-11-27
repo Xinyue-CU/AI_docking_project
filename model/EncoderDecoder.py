@@ -19,8 +19,8 @@ class EncoderDecoder(nn.Module):
         x = self.embedding(x)
         _, (hidden, cell) = self.encoder(x)
 
-        decoder_input = x[:, -1, :].unsqueeze(1)  # 使用编码器最后一个时间步的输出作为解码器的输入
+        decoder_input = x[:, -1, :].unsqueeze(1)
         decoder_output, _ = self.decoder(decoder_input, (hidden, cell))
 
-        output = self.fc(decoder_output[:, -1, :])  # 取解码器最后一个时间步的输出
+        output = self.fc(decoder_output[:, -1, :])
         return output
