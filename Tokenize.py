@@ -13,7 +13,7 @@ from sklearn.metrics import r2_score
 
 print('Start running the program...')
 # 1. Prepare the vocabulary
-dataset_name = 'sample_data.csv'
+dataset_name = 'resampled_data.csv'
 df_smiles = pd.read_csv(dataset_name)
 df_smiles = df_smiles.dropna(how='any')
 SMILES = df_smiles['SMILES'].tolist()
@@ -49,7 +49,6 @@ model.save(model_path)
 spe2vec = SPE2Vec(model_path, spe)  # create SPE2Vec object
 
 
-
 # 3. get SMILES embedding string using SPE tokenizer
 df_smiles['tokenize'] = df_smiles['SMILES'].apply(lambda x: spe.tokenize(x))
 df_smiles['embedding'] = df_smiles['SMILES'].apply(lambda x: spe2vec.smiles2vec(x))
@@ -73,11 +72,11 @@ print('Get the data successfully!')
 
 
 # 5. Build up the model
-input_size = 200  # The number of expected features in the input x
-hidden_size1 = 128  # Hidden size for the first hidden layer
-hidden_size2 = 64  # Hidden size for the second hidden layer
-hidden_size3 = 16  # Hidden size for the second hidden layer
-num_layers = 1  # Number of LSTM layers
+input_size = 200
+hidden_size1 = 128
+hidden_size2 = 64
+hidden_size3 = 16
+num_layers = 2  # Number of LSTM layers
 num_classes = 1  # Number of output classes
 learning_rate = 0.01
 num_epochs = 100  # Number of training epochs
@@ -104,6 +103,7 @@ for epoch in range(num_epochs):
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
+        epoch_loss += loss.item()
 
     epoch_loss /= len(train_loader)
     print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
@@ -134,6 +134,7 @@ with torch.no_grad():
         predictions.append(outputs.detach().cpu().numpy())
 
 predictions = np.concatenate(predictions)
+print(predictions)
 r2 = r2_score(y_test_tensor, predictions)
 print(f'R-squared Score on Test Set: {r2:.4f}')
 
