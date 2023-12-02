@@ -1,6 +1,7 @@
 import codecs
 import matplotlib.pyplot as plt
 import torch
+from tqdm import tqdm
 import torch.nn as nn
 import numpy as np
 import pandas as pd
@@ -13,13 +14,12 @@ from model.data_preprocessing import padding, get_data
 from sklearn.metrics import r2_score
 
 
-print('Start running the program...')
+# print('Start running the program...')
 # 1. Prepare the vocabulary
 dataset_name = 'resampled_data.csv'
 df_smiles = pd.read_csv(dataset_name)
 SMILES = df_smiles['SMILES'].tolist()
 print('Get the SMILES list successfully!')
-
 
 # Build up the vocabulary of tokens
 vocab_output = codecs.open('SPE_token_vocab.txt', 'w')  # Create a directory for the output files
@@ -49,20 +49,35 @@ print('Build up spe2vec model successfully!')
 model_path = 'spe_model.bin'
 model.save(model_path)
 spe2vec = SPE2Vec(model_path, spe)  # create SPE2Vec object
-
+print('Get spe2vec model successfully!')
 
 # 3. get SMILES embedding string using SPE tokenizer
 df_smiles['tokenize'] = df_smiles['SMILES'].apply(lambda x: spe.tokenize(x))
-df_smiles['embedding'] = df_smiles['SMILES'].apply(lambda x: spe2vec.smiles2vec(x))
-# # save the result
+print('Get tokenize result successfully!')
+def process_embedding(smiles):
+    embedding = spe2vec.smiles2vec(smiles)
+    return embedding
+
+tqdm.pandas(desc="Processing SMILES embeddings")
+df_smiles['embedding'] = df_smiles['SMILES'].progress_apply(process_embedding)
+
+
+# save the result
 df_smiles.to_csv('SAMPLE_SMILE1_embedding_result.csv', index=False)
 original_smiles = df_smiles['SMILES'].tolist()
 smiles2seq_list = df_smiles['embedding'].tolist()  # X
 docking_score = df_smiles['docking score'].tolist()  # y
+
+# save the embedding result to pickle file
+pickle_file_path = 'embedding_data.pkl'
+tqdm.write("Saving the embedding data...")
+df_smiles[['embedding', 'SMILES', 'docking score']].to_pickle(pickle_file_path)
+tqdm.write("Embedding data saved successfully!")
+
+tqdm.write("Loading the embedding data...")
+loaded_df = pd.read_pickle(pickle_file_path)
+tqdm.write("Embedding data loaded successfully!")
 print('Get the embedding result successfully！')
-plt.hist(docking_score, bins=20)
-plt.show()
-exit(0)
 
 
 # 4. Data preprocessing: padding and train test split
@@ -72,7 +87,6 @@ y = np.array(docking_score)
 train_loader, val_loader, test_loader, y_train_tensor, \
 y_val_tensor, y_test_tensor, smiles_train, smiles_val, smiles_test = get_data(original_smiles, X, y)
 print('Get the data successfully!')
-
 
 
 # 5. Build up the model
@@ -118,7 +132,6 @@ for epoch in range(num_epochs):
 
     epoch_loss /= len(train_loader)
     print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
-
 
 # Save the model
 torch.save(model, 'LSTM_model.pth')
