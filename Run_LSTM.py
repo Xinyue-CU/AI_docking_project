@@ -1,4 +1,5 @@
 import codecs
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import numpy as np
@@ -7,16 +8,18 @@ import os
 from SmilesPE.learner import *
 from SmilesPE.tokenizer import *
 from SmilesPE.spe2vec import *
-from model.LSTM_model import LSTM
+from model.LSTM1 import LSTM
 from model.data_preprocessing import padding, get_data
 from sklearn.metrics import r2_score
+
 
 print('Start running the program...')
 # 1. Prepare the vocabulary
 dataset_name = 'resampled_data.csv'
 df_smiles = pd.read_csv(dataset_name)
-df_smiles = df_smiles.dropna(how='any')
 SMILES = df_smiles['SMILES'].tolist()
+print('Get the SMILES list successfully!')
+
 
 # Build up the vocabulary of tokens
 vocab_output = codecs.open('SPE_token_vocab.txt', 'w')  # Create a directory for the output files
@@ -26,11 +29,10 @@ vocab_output.close()
 print('Build up the vocabulary successfully!')
 
 
-
 # 2. Build up SPE tokenizer(Train the model with skip-gram algorithm)
 # Load the vocabulary
 spe_vocab = codecs.open('SPE_token_vocab.txt')
-# # Build a tokenizer model with the vocabulary
+# Build a tokenizer model with the vocabulary
 spe = SPE_Tokenizer(spe_vocab)  # SPE_Tokenizer is a class in tokenizer.py in SmilesPE
 
 # Train the SPE2VEC model
@@ -53,12 +55,14 @@ spe2vec = SPE2Vec(model_path, spe)  # create SPE2Vec object
 df_smiles['tokenize'] = df_smiles['SMILES'].apply(lambda x: spe.tokenize(x))
 df_smiles['embedding'] = df_smiles['SMILES'].apply(lambda x: spe2vec.smiles2vec(x))
 # # save the result
-# df_smiles.to_csv('SAMPLE_SMILE1_embedding_result.csv', index=False)
+df_smiles.to_csv('SAMPLE_SMILE1_embedding_result.csv', index=False)
 original_smiles = df_smiles['SMILES'].tolist()
 smiles2seq_list = df_smiles['embedding'].tolist()  # X
 docking_score = df_smiles['docking score'].tolist()  # y
 print('Get the embedding result successfully！')
-
+plt.hist(docking_score, bins=20)
+plt.show()
+exit(0)
 
 
 # 4. Data preprocessing: padding and train test split
@@ -72,21 +76,32 @@ print('Get the data successfully!')
 
 
 # 5. Build up the model
+# input_size = 100
+# hidden_size1 = 64
+# hidden_size2 = 32
+# hidden_size3 = 16
+# num_layers = 2  # Number of LSTM layers
+# num_classes = 1  # Number of output classes
+# learning_rate = 0.01
+# num_epochs = 100  # Number of training epochs
+# seq_length = max_seq_length  # Length of the input sequence
+# dropout_prob = 0.2  # Dropout rate
+
+num_classes = 1
 input_size = 100
 hidden_size1 = 64
 hidden_size2 = 32
-hidden_size3 = 16
-num_layers = 2  # Number of LSTM layers
-num_classes = 1  # Number of output classes
+num_layers = 1
+seq_length = max_seq_length
+dropout_prob = 0.2
 learning_rate = 0.01
-num_epochs = 100  # Number of training epochs
-seq_length = max_seq_length  # Length of the input sequence
-dropout_prob = 0.2  # Dropout rate
+num_epochs = 100
 
-model = LSTM(num_classes, input_size, hidden_size1, hidden_size2, hidden_size3, num_layers, seq_length, dropout_prob)
+model = LSTM(num_classes, input_size, hidden_size1, hidden_size2, num_layers, seq_length, dropout_prob)
+
+# model = LSTM(num_classes, input_size, hidden_size1, hidden_size2, hidden_size3, num_layers, seq_length, dropout_prob)
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
 
 
 # Training loop
