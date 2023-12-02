@@ -12,7 +12,7 @@ class LSTM(nn.Module):
         self.input_size = input_size
         self.hidden_size1 = hidden_size1
         self.hidden_size2 = hidden_size2
-        self.hidden_size2 = hidden_size3
+        self.hidden_size3 = hidden_size3
         self.seq_length = seq_length
         self.dropout_prob = dropout_prob
 

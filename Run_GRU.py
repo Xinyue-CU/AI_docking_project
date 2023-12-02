@@ -11,6 +11,7 @@ from model.GRU_model import GRU
 from model.data_preprocessing import padding, get_data
 from sklearn.metrics import r2_score
 
+
 print('Start running the program...')
 # 1. Prepare the vocabulary
 dataset_name = 'resampled_data.csv'
@@ -108,15 +109,6 @@ for epoch in range(num_epochs):
     epoch_loss /= len(train_loader)
     print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
 
-    if epoch_loss < best_loss:
-        best_loss = epoch_loss
-        early_stop_counter = 0
-    else:
-        early_stop_counter += 1
-
-    if early_stop_counter >= 10:
-        print('Early stopping: Loss has not improved for 10 consecutive epochs.')
-        break
 
 # Save the model
 torch.save(model, 'LSTM_model.pth')
@@ -134,7 +126,6 @@ with torch.no_grad():
         predictions.append(outputs.detach().cpu().numpy())
 
 predictions = np.concatenate(predictions)
-print(predictions)
 r2 = r2_score(y_test_tensor, predictions)
 print(f'R-squared Score on Test Set: {r2:.4f}')
 

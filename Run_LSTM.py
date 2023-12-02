@@ -88,10 +88,6 @@ criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 
-# set early stopping condition
-early_stop_counter = 0
-best_loss = float('inf')
-
 
 # Training loop
 print('Start training.....')
@@ -108,15 +104,6 @@ for epoch in range(num_epochs):
     epoch_loss /= len(train_loader)
     print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
 
-    if epoch_loss < best_loss:
-        best_loss = epoch_loss
-        early_stop_counter = 0
-    else:
-        early_stop_counter += 1
-
-    if early_stop_counter >= 10:
-        print('Early stopping: Loss has not improved for 10 consecutive epochs.')
-        break
 
 # Save the model
 torch.save(model, 'LSTM_model.pth')
