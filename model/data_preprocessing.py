@@ -1,5 +1,7 @@
 import torch
+import matplotlib.pyplot as plt
 import torch.nn as nn
+from torch.nn.utils.rnn import pack_sequence, pad_packed_sequence
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
@@ -24,7 +26,9 @@ def padding(smiles2seq_list, num_features=200):
     seq_length = max(len(seq) for seq in smiles2seq_list)
     '''
 
-    max_seq_length = max(len(seq) for seq in smiles2seq_list)
+
+    len_list = [len(seq) for seq in smiles2seq_list]
+    max_seq_length = max(len_list)
     all_result = []
     for i in tqdm(range(len(smiles2seq_list))):
         seq = smiles2seq_list[i]
@@ -41,7 +45,7 @@ def padding(smiles2seq_list, num_features=200):
     return max_seq_length, all_result
 
 
-def get_data(original_smiles, X, y):
+def get_data(original_length, X, y):
     # Split the data into training, validation, and test sets
     print('Start Train test split.....')
     X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -51,8 +55,8 @@ def get_data(original_smiles, X, y):
     y_test = y_test.reshape(-1, 1)
 
     # we also want to reserve the original smiles
-    smiles_train, smiles_temp, y_train, y_temp = train_test_split(original_smiles, y, test_size=0.2, random_state=42)
-    smiles_val, smiles_test, y_val, y_test = train_test_split(smiles_temp, y_temp, test_size=0.5, random_state=42)
+    len_train, len_temp, y_train, y_temp = train_test_split(original_length, y, test_size=0.2, random_state=42)
+    len_val, len_test, y_val, y_test = train_test_split(len_temp, y_temp, test_size=0.5, random_state=42)
 
     # Convert data to PyTorch tensors
     print('Start converting to tensor.....')
@@ -71,4 +75,4 @@ def get_data(original_smiles, X, y):
     test_dataset = TensorDataset(X_test_tensor, y_test_tensor)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    return train_loader, val_loader, test_loader, y_train_tensor, y_val_tensor, y_test_tensor, smiles_train, smiles_val, smiles_test
+    return train_loader, val_loader, test_loader, y_train_tensor, y_val_tensor, y_test_tensor, len_train, len_val, len_test
