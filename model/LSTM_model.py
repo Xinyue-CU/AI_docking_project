@@ -97,33 +97,6 @@ class LSTM_2layer(nn.Module):
 
         return out
 
-# class TwoLayerLSTMModel(nn.Module):
-#     def __init__(self, input_dim, hidden_size1, hidden_size2, output_dim):
-#         super(TwoLayerLSTMModel, self).__init__()
-#         self.lstm1 = nn.LSTM(input_dim, hidden_size1, batch_first=True)
-#         self.lstm2 = nn.LSTM(hidden_size1, hidden_size2, batch_first=True)
-#         self.fc = nn.Linear(hidden_size2, output_dim)
-#
-#     def forward(self, x, lengths):
-#         # Pack the sequence
-#         packed_input1 = pack_padded_sequence(x, lengths, batch_first=True, enforce_sorted=False)
-#
-#         # First LSTM layer
-#         packed_output1, _ = self.lstm1(packed_input1)
-#         output1, lengths1 = pad_packed_sequence(packed_output1, batch_first=True)
-#
-#         # Second LSTM layer
-#         packed_input2 = pack_padded_sequence(output1, lengths1, batch_first=True, enforce_sorted=False)
-#         packed_output2, _ = self.lstm2(packed_input2)
-#         output2, lengths2 = pad_packed_sequence(packed_output2, batch_first=True)
-#
-#         # Fully connected layer
-#         output = self.fc(output2[:, -1, :])
-#
-#         return output
-
-
-
 # LSTM version 3
 # two layer LSTM without padding
 # use pad_packed_sequence to inverse the padding process
