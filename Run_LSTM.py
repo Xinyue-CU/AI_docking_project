@@ -9,29 +9,28 @@ import os
 from SmilesPE.learner import *
 from SmilesPE.tokenizer import *
 from SmilesPE.spe2vec import *
-from model.LSTM1 import LSTM
+from model.LSTM1 import LSTM_2layer
 from model.data_preprocessing import padding, get_data
 from sklearn.metrics import r2_score
 
 
-# print('Start running the program...')
 # 1. Prepare the vocabulary
 dataset_name = 'resampled_data.csv'
 df_smiles = pd.read_csv(dataset_name)
 SMILES = df_smiles['SMILES'].tolist()
 print('Get the SMILES list successfully!')
 
-# Build up the vocabulary of tokens
-vocab_output = codecs.open('SPE_token_vocab.txt', 'w')  # Create a directory for the output files
-learn_SPE(SMILES, vocab_output, 30000, min_frequency=200,
-          augmentation=1, verbose=True, total_symbols=True)  # learn_SPE is a function in learner.py in SmilesPE
-vocab_output.close()
-print('Build up the vocabulary successfully!')
+# # Build up the vocabulary of tokens
+# vocab_output = codecs.open('SPE_token_vocab.txt', 'w')  # Create a directory for the output files
+# learn_SPE(SMILES, vocab_output, 30000, min_frequency=50,
+#           augmentation=1, verbose=True, total_symbols=True)  # learn_SPE is a function in learner.py in SmilesPE
+# vocab_output.close()
+# print('Build up the vocabulary successfully!')
 
 
 # 2. Build up SPE tokenizer(Train the model with skip-gram algorithm)
 # Load the vocabulary
-spe_vocab = codecs.open('SPE_token_vocab.txt')
+spe_vocab = codecs.open('SPE_ChEMBL.txt')
 # Build a tokenizer model with the vocabulary
 spe = SPE_Tokenizer(spe_vocab)  # SPE_Tokenizer is a class in tokenizer.py in SmilesPE
 
@@ -54,6 +53,7 @@ print('Get spe2vec model successfully!')
 # 3. get SMILES embedding string using SPE tokenizer
 df_smiles['tokenize'] = df_smiles['SMILES'].apply(lambda x: spe.tokenize(x))
 print('Get tokenize result successfully!')
+
 def process_embedding(smiles):
     embedding = spe2vec.smiles2vec(smiles)
     return embedding
@@ -111,7 +111,7 @@ dropout_prob = 0.2
 learning_rate = 0.01
 num_epochs = 100
 
-model = LSTM(num_classes, input_size, hidden_size1, hidden_size2, num_layers, seq_length, dropout_prob)
+model = LSTM_2layer(num_classes, input_size, hidden_size1, hidden_size2, num_layers, seq_length, dropout_prob)
 
 # model = LSTM(num_classes, input_size, hidden_size1, hidden_size2, hidden_size3, num_layers, seq_length, dropout_prob)
 criterion = nn.MSELoss()
